@@ -1,0 +1,20 @@
+# Development environment override
+services:
+    php:
+        image: shinsenter/symfony
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            - ./:/var/www/html
+        tty: true
+    db:
+        image: alpine/sqlite:latest
+        container_name: app_db_container
+        stdin_open: true
+        tty: true
+        volumes:
+            - ./db:/var/lib/sqlite
+        working_dir: /var/lib/sqlite
+        entrypoint: ["sqlite3"]
+        command: "/var/lib/sqlite/db.sqlite"
