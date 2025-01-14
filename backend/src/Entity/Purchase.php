@@ -3,18 +3,33 @@
 namespace App\Entity;
 
 use App\Repository\PurchaseRepository;
+use DateTime;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PurchaseRepository::class)]
-class Purchase
+class Purchase implements \JsonSerializable
 {
-    #[ORM\Id]
-    #[ORM\Column(name: 'purchase_identifier', type: Types::STRING, length: 10)]
-    private string $purchaseIdentifier;
 
-    #[ORM\Column(name: 'customer_id', type: Types::INTEGER)]
-    private int $customerId;
+    const CSV_ID = 0;
+    const CSV_CUSTOMER_ID = 1;
+    const CSV_PRODUCT_ID = 2;
+    const CSV_QUANTITY = 3;
+    const CSV_PRICE = 4;
+    const CSV_CURRENCY = 5;
+    const CSV_DATE = 6;
+
+    #[ORM\Id]
+    #[ORM\Column(name: 'id', type: Types::STRING, length: 10, unique: true)]
+    private string $id;
+
+    #[ORM\ManyToOne(
+        targetEntity: Customer::class,
+        inversedBy: 'purchases',
+        fetch: 'LAZY'
+    )]
+    #[ORM\JoinColumn(name: 'customer_id', nullable: false, onDelete: 'CASCADE')]
+    private ?Customer $customer = null;
 
     #[ORM\Column(name: 'product_id', type: Types::INTEGER)]
     private int $productId;
@@ -31,26 +46,39 @@ class Purchase
     #[ORM\Column(name: 'date', type: 'date')]
     private \DateTime $date;
 
-    // Getters and Setters
-    public function getPurchaseIdentifier(): string
+    public function jsonSerialize(): array
     {
-        return $this->purchaseIdentifier;
+        return [
+            'id' => $this->id,
+            'productId' => $this->productId,
+            'quantity' => $this->quantity,
+            'price' => $this->price,
+            'currency' => $this->currency,
+            'date' => $this->date->format('Y-m-d'),
+            'customer_id' => $this->customer ? $this->customer->getId() : null,
+        ];
     }
 
-    public function setPurchaseIdentifier(string $purchaseIdentifier): self
+    // Getters and Setters
+    public function getId(): string
     {
-        $this->purchaseIdentifier = $purchaseIdentifier;
+        return $this->id;
+    }
+
+    public function setId(string $id): self
+    {
+        $this->id = $id;
         return $this;
     }
 
-    public function getCustomerId(): int
+    public function getCustomer(): ?Customer
     {
-        return $this->customerId;
+        return $this->customer;
     }
 
-    public function setCustomerId(int $customerId): self
+    public function setCustomer(Customer $customer): self
     {
-        $this->customerId = $customerId;
+        $this->customer = $customer;
         return $this;
     }
 
@@ -107,5 +135,21 @@ class Purchase
     {
         $this->date = $date;
         return $this;
+    }
+
+    public static function fromCSV(array $data, Customer $customer): Purchase
+    {
+        $date = DateTime::createFromFormat('Y-m-d', $data[self::CSV_DATE]);
+
+        $purchase = new Purchase();
+        $purchase->setId($data[self::CSV_ID]);
+        $purchase->setCustomer($customer);
+        $purchase->setProductId($data[self::CSV_PRODUCT_ID]);
+        $purchase->setQuantity($data[self::CSV_QUANTITY]);
+        $purchase->setPrice($data[self::CSV_PRICE]);
+        $purchase->setCurrency($data[self::CSV_CURRENCY]);
+        $purchase->setDate($date);
+
+        return $purchase;
     }
 }
