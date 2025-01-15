@@ -17,7 +17,7 @@ use Symfony\Component\Finder\Finder;
 
 #[AsCommand(
     name: 'ugo:orders:import',
-    description: 'Add a short description for your command',
+    description: 'Import customers and purchases from CSV files take the filePath argument as folder path',
 )]
 class UgoOrdersImportCommand extends Command
 {
