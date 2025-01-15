@@ -30,7 +30,6 @@ class CustomerController extends AbstractController
     {
         $customer = $this->customerService->findById($id);
         $orders = $this->purchaseService->getAllByCustomerId($id, $customer);
-
         return $this->json($orders);
     }
 }
