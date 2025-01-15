@@ -1,4 +1,4 @@
-const API_URL = "http://localhost";
+const API_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8080";
 
 class CustomerService {
   public async getAll() {

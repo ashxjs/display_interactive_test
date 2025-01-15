@@ -16,12 +16,26 @@ const columns = [
   "date",
 ];
 
-export const Table: FunctionComponent<{
+type TableProps = {
+  isLoading: boolean;
   purchases: Purchase[];
   totalPrice: number;
-}> = ({ purchases, totalPrice }) => (
+};
+
+export const Table: FunctionComponent<TableProps> = ({
+  purchases,
+  totalPrice,
+  isLoading,
+}) => (
   <>
     <TableHeader columns={columns} />
+    {isLoading ? (
+      <div className="flex justify-center items-center h-full p-5">
+        <span className="text-2xl font-bold text-gray-500 text-center">
+          Loading...
+        </span>
+      </div>
+    ) : null}
     {purchases.map((purchase) => (
       <PurchaseRow key={purchase.id} {...purchase} />
     ))}
@@ -38,7 +52,7 @@ export const Table: FunctionComponent<{
         ))}
       </TableRow>
     ) : null}
-    {purchases.length === 0 && (
+    {purchases.length === 0 && !isLoading && (
       <TableRow shouldHover={false}>
         <TableColumn border={false} shouldHover={false}>
           <ValueDisplayer value="No purchases found" />

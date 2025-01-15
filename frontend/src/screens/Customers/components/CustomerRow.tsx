@@ -20,7 +20,7 @@ export const CustomerRow: FunctionComponent<Customer> = ({
           <CustomerColumn key={`${field}-${index}`} value={field} />
         )
       )}
-      <ShowOrdersButton id={id} />
+      <ShowOrdersButton id={String(id)} />
     </TableRow>
   );
 };

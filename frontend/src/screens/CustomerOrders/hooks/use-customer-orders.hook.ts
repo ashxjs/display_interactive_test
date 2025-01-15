@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePurchaseStore } from "@/stores/purchase.store";
 import { useParams } from "react-router";
 
@@ -8,13 +8,16 @@ const DEVISE = {
 };
 
 export const useCustomerOrders = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const { purchases, getCustomerPurchases } = usePurchaseStore();
   const { id } = useParams();
 
   useEffect(() => {
     if (id) {
+      setIsLoading(true);
       const fetchCustomerPurchases = async () => {
-        await getCustomerPurchases(id);
+        await getCustomerPurchases(Number.parseInt(id));
+        setIsLoading(false);
       };
 
       fetchCustomerPurchases();
@@ -30,5 +33,5 @@ export const useCustomerOrders = () => {
     0
   );
 
-  return { purchases, totalPrice };
+  return { purchases, totalPrice, isLoading };
 };

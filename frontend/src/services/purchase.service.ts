@@ -1,6 +1,6 @@
 import { Purchase } from "@/types/purchase.type";
 
-const API_URL = "http://localhost";
+const API_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8080";
 
 type PurchaseJson = {
   id: number;
